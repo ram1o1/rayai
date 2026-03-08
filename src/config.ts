@@ -17,7 +17,7 @@ export function loadConfig(): Config {
     const telegramBotToken = requireEnv("TELEGRAM_BOT_TOKEN");
     const telegramChatId = requireEnv("TELEGRAM_CHAT_ID");
 
-    const llmProvider = (process.env.LLM_PROVIDER || "openrouter") as
+    const llmProvider = (process.env.LLM_PROVIDER || "gemini") as
         | "gemini"
         | "openai"
         | "openrouter";

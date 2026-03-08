@@ -131,8 +131,19 @@ async function generateWithOpenAI(
 }
 
 /**
+ * Free-tier models to try in order if the primary model is rate-limited.
+ */
+const FREE_FALLBACK_MODELS = [
+    "google/gemini-2.5-flash:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "qwen/qwen3-32b:free",
+    "deepseek/deepseek-chat-v3-0324:free",
+];
+
+/**
  * Generate using OpenRouter (OpenAI-compatible API).
- * Includes retry with exponential backoff for rate limits (429).
+ * Tries the configured model first, then falls back to other free models
+ * if rate-limited (429/402).
  */
 async function generateWithOpenRouter(
     userPrompt: string,
@@ -148,13 +159,18 @@ async function generateWithOpenRouter(
         },
     });
 
-    const maxRetries = 5;
-    const targetModel = model || "google/gemini-2.5-flash:free";
+    // Build model list: user's preferred model first, then fallbacks
+    const primaryModel = model || FREE_FALLBACK_MODELS[0];
+    const modelsToTry = [
+        primaryModel,
+        ...FREE_FALLBACK_MODELS.filter((m) => m !== primaryModel),
+    ];
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    for (const currentModel of modelsToTry) {
         try {
+            console.log(`🤖 Trying model: ${currentModel}`);
             const response = await openrouter.chat.completions.create({
-                model: targetModel,
+                model: currentModel,
                 messages: [
                     { role: "system", content: SYSTEM_PROMPT },
                     { role: "user", content: userPrompt },
@@ -166,24 +182,29 @@ async function generateWithOpenRouter(
             const text = response.choices[0]?.message?.content;
 
             if (!text) {
-                throw new Error("OpenRouter returned an empty response.");
+                throw new Error(
+                    `OpenRouter (${currentModel}) returned an empty response.`
+                );
             }
 
             return text;
         } catch (error) {
-            const is429 =
-                error instanceof Error && error.message.includes("429");
-            if (is429 && attempt < maxRetries) {
-                const delay = Math.pow(2, attempt) * 3000; // 6s, 12s, 24s, 48s
+            const msg =
+                error instanceof Error ? error.message : String(error);
+            const isRateLimit = msg.includes("429") || msg.includes("402");
+
+            if (isRateLimit) {
                 console.warn(
-                    `⚠️  Rate limited (429). Retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...`
+                    `⚠️  ${currentModel} rate-limited. Trying next model...`
                 );
-                await new Promise((r) => setTimeout(r, delay));
+                await new Promise((r) => setTimeout(r, 2000));
                 continue;
             }
             throw error;
         }
     }
 
-    throw new Error("OpenRouter: max retries exceeded.");
+    throw new Error(
+        "OpenRouter: all free models are rate-limited. Try again later."
+    );
 }
