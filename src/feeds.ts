@@ -22,18 +22,13 @@ export const FEED_SOURCES: FeedSource[] = [
         category: "Labs & Research",
     },
     {
-        name: "Anthropic",
-        url: "https://www.anthropic.com/feed.xml",
-        category: "Labs & Research",
-    },
-    {
-        name: "Meta AI Blog",
-        url: "https://about.fb.com/news/category/ai/feed/",
-        category: "Labs & Research",
-    },
-    {
         name: "Microsoft AI Blog",
         url: "https://blogs.microsoft.com/ai/feed/",
+        category: "Labs & Research",
+    },
+    {
+        name: "Meta Engineering",
+        url: "https://engineering.fb.com/feed/",
         category: "Labs & Research",
     },
 
@@ -49,8 +44,8 @@ export const FEED_SOURCES: FeedSource[] = [
         category: "Open Source",
     },
     {
-        name: "Ollama Blog",
-        url: "https://ollama.com/blog/feed",
+        name: "Simon Willison",
+        url: "https://simonwillison.net/atom/everything/",
         category: "Open Source",
     },
 
@@ -98,8 +93,8 @@ export const FEED_SOURCES: FeedSource[] = [
         category: "Industry",
     },
     {
-        name: "Axios AI",
-        url: "https://www.axios.com/technology/artificial-intelligence/feed",
+        name: "Lilian Weng (OpenAI)",
+        url: "https://lilianweng.github.io/index.xml",
         category: "Industry",
     },
 
@@ -110,8 +105,8 @@ export const FEED_SOURCES: FeedSource[] = [
         category: "Newsletters",
     },
     {
-        name: "The Batch (deeplearning.ai)",
-        url: "https://www.deeplearning.ai/blog/feed/",
+        name: "AI Supremacy",
+        url: "https://aisupremacy.substack.com/feed",
         category: "Newsletters",
     },
     {

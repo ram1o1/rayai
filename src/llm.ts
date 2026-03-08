@@ -148,7 +148,7 @@ async function generateWithOpenRouter(
         },
     });
 
-    const maxRetries = 3;
+    const maxRetries = 5;
     const targetModel = model || "google/gemini-2.5-flash:free";
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -174,7 +174,7 @@ async function generateWithOpenRouter(
             const is429 =
                 error instanceof Error && error.message.includes("429");
             if (is429 && attempt < maxRetries) {
-                const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+                const delay = Math.pow(2, attempt) * 3000; // 6s, 12s, 24s, 48s
                 console.warn(
                     `⚠️  Rate limited (429). Retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...`
                 );
