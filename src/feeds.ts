@@ -23,12 +23,12 @@ export const FEED_SOURCES: FeedSource[] = [
     },
     {
         name: "Anthropic",
-        url: "https://www.anthropic.com/rss.xml",
+        url: "https://www.anthropic.com/feed.xml",
         category: "Labs & Research",
     },
     {
         name: "Meta AI Blog",
-        url: "https://ai.meta.com/blog/rss/",
+        url: "https://about.fb.com/news/category/ai/feed/",
         category: "Labs & Research",
     },
     {
@@ -50,7 +50,7 @@ export const FEED_SOURCES: FeedSource[] = [
     },
     {
         name: "Ollama Blog",
-        url: "https://ollama.com/blog/rss",
+        url: "https://ollama.com/blog/feed",
         category: "Open Source",
     },
 
@@ -98,8 +98,8 @@ export const FEED_SOURCES: FeedSource[] = [
         category: "Industry",
     },
     {
-        name: "The Information AI",
-        url: "https://www.theinformation.com/feed",
+        name: "Axios AI",
+        url: "https://www.axios.com/technology/artificial-intelligence/feed",
         category: "Industry",
     },
 
@@ -111,7 +111,7 @@ export const FEED_SOURCES: FeedSource[] = [
     },
     {
         name: "The Batch (deeplearning.ai)",
-        url: "https://www.deeplearning.ai/the-batch/feed/",
+        url: "https://www.deeplearning.ai/blog/feed/",
         category: "Newsletters",
     },
     {

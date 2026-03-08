@@ -132,6 +132,7 @@ async function generateWithOpenAI(
 
 /**
  * Generate using OpenRouter (OpenAI-compatible API).
+ * Includes retry with exponential backoff for rate limits (429).
  */
 async function generateWithOpenRouter(
     userPrompt: string,
@@ -147,21 +148,42 @@ async function generateWithOpenRouter(
         },
     });
 
-    const response = await openrouter.chat.completions.create({
-        model: model || "google/gemini-2.5-flash",
-        messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userPrompt },
-        ],
-        max_tokens: 2048,
-        temperature: 0.7,
-    });
+    const maxRetries = 3;
+    const targetModel = model || "google/gemini-2.5-flash:free";
 
-    const text = response.choices[0]?.message?.content;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await openrouter.chat.completions.create({
+                model: targetModel,
+                messages: [
+                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "user", content: userPrompt },
+                ],
+                max_tokens: 2048,
+                temperature: 0.7,
+            });
 
-    if (!text) {
-        throw new Error("OpenRouter returned an empty response.");
+            const text = response.choices[0]?.message?.content;
+
+            if (!text) {
+                throw new Error("OpenRouter returned an empty response.");
+            }
+
+            return text;
+        } catch (error) {
+            const is429 =
+                error instanceof Error && error.message.includes("429");
+            if (is429 && attempt < maxRetries) {
+                const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+                console.warn(
+                    `⚠️  Rate limited (429). Retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...`
+                );
+                await new Promise((r) => setTimeout(r, delay));
+                continue;
+            }
+            throw error;
+        }
     }
 
-    return text;
+    throw new Error("OpenRouter: max retries exceeded.");
 }
